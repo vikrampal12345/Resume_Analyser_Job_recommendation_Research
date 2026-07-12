@@ -1,18 +1,60 @@
-# Resume Recommendation Pipeline
+# 🧠 Resume Recommendation Pipeline
 
-## 1. Load the Sentence Transformer Model
-
-```python
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-```
-
-* Loads the pre-trained **all-MiniLM-L6-v2** model.
-* Converts resume text into **384-dimensional embeddings**.
-* These embeddings capture the semantic meaning of the resume instead of just matching keywords.
+This project recommends suitable job roles by comparing an uploaded resume with previously labeled resumes using **Sentence Transformers** and **FAISS**.
 
 ---
 
-## 2. Generate Resume Embeddings
+## 📌 Workflow
+
+```text
+Resume Text
+     │
+     ▼
+Sentence Transformer
+     │
+     ▼
+384-Dimensional Embedding
+     │
+     ▼
+FAISS Similarity Search
+     │
+     ▼
+Top-K Similar Resumes
+     │
+     ▼
+Extract Job Roles
+     │
+     ▼
+Calculate Similarity Scores
+     │
+     ▼
+Rank Job Roles
+     │
+     ▼
+Top 5 Recommended Jobs
+```
+
+---
+
+# Step 1: Load the Sentence Transformer Model
+
+```python
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+```
+
+### Purpose
+
+Loads the pre-trained **all-MiniLM-L6-v2** model.
+
+This model converts resume text into **384-dimensional semantic embeddings**, allowing resumes with similar meanings to be close together in vector space.
+
+---
+
+# Step 2: Generate Resume Embeddings
 
 ```python
 resume_embeddings = model.encode(
@@ -25,21 +67,12 @@ resume_embeddings = model.encode(
 
 ### Parameters
 
-* **df["resume_text"].tolist()**
-
-  * Converts the `resume_text` column into a Python list.
-
-* **batch_size=32**
-
-  * Processes 32 resumes at a time for faster embedding generation.
-
-* **show_progress_bar=True**
-
-  * Displays the encoding progress.
-
-* **convert_to_numpy=True**
-
-  * Returns embeddings as NumPy arrays.
+| Parameter                    | Description                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| `df["resume_text"].tolist()` | Converts the resume column into a Python list            |
+| `batch_size=32`              | Processes 32 resumes simultaneously for faster execution |
+| `show_progress_bar=True`     | Displays encoding progress                               |
+| `convert_to_numpy=True`      | Returns embeddings as NumPy arrays                       |
 
 ### Output
 
@@ -56,39 +89,42 @@ resume_embeddings.shape
 
 ---
 
-## 3. Create the FAISS Index
+# Step 3: Create the FAISS Index
 
 ```python
+import faiss
+
 dimension = resume_embeddings.shape[1]
 
 index = faiss.IndexFlatL2(dimension)
 ```
 
-### Explanation
+### Purpose
+
+Creates an empty FAISS index.
 
 * `shape[1]` returns the embedding dimension (**384**).
-* `IndexFlatL2` creates a FAISS index using **Euclidean (L2) distance**.
-* Initially, the index is empty.
+* `IndexFlatL2` uses **Euclidean (L2) Distance** to compare vectors.
 
 ---
 
-## 4. Add Embeddings to the Index
+# Step 4: Add Resume Embeddings
 
 ```python
 index.add(
-    np.array(resume_embeddings).astype("float32")
+    resume_embeddings.astype("float32")
 )
 ```
 
-### Explanation
+### Purpose
 
-* Converts embeddings to `float32`, which FAISS requires.
-* Stores every resume embedding inside the index.
-* The index is now ready for similarity search.
+Stores every resume embedding inside the FAISS index.
+
+`float32` is required because FAISS operates on 32-bit floating-point vectors.
 
 ---
 
-## 5. Encode the Query Resume
+# Step 5: Encode the Query Resume
 
 ```python
 query = model.encode(
@@ -97,13 +133,11 @@ query = model.encode(
 ).astype("float32")
 ```
 
-### Explanation
+### Purpose
 
-* Selects one resume from the dataset (used here as a sample query).
-* Converts it into a **384-dimensional embedding**.
-* Converts the embedding to `float32`.
+Converts the uploaded (or sample) resume into a **384-dimensional embedding**.
 
-### Output
+Output:
 
 ```python
 query.shape
@@ -113,9 +147,12 @@ query.shape
 (1, 384)
 ```
 
+* **1** → One query resume
+* **384** → Embedding size
+
 ---
 
-## 6. Search Similar Resumes
+# Step 6: Search Similar Resumes
 
 ```python
 distance, indices = index.search(
@@ -124,133 +161,88 @@ distance, indices = index.search(
 )
 ```
 
-### Parameters
+### Purpose
 
-* **query**
+Retrieves the **10 most similar resumes** from the dataset.
 
-  * Query resume embedding.
+---
 
-* **k=10**
-
-  * Returns the 10 nearest resumes.
-
-### Returned Values
-
-```python
-distance
-```
+## Understanding `indices`
 
 Example:
-
-```
-[[0.00, 0.18, 0.35, 0.62, 0.81, ...]]
-```
-
-* Contains the L2 distance between the query and each retrieved resume.
-* Smaller distance means higher similarity.
 
 ```python
 indices
 ```
 
-Example:
-
 ```
-[[45, 18, 201, 8, 300, ...]]
+[[45, 18, 201, 8, 300, 54, 76, 150, 400, 99]]
 ```
 
-* Contains the DataFrame row indices of the retrieved resumes.
+These numbers represent the **row indices** of the most similar resumes.
 
----
-
-## Understanding `indices[0]`
-
-Suppose:
-
-```python
-indices =
-[
-    [45, 18, 201, 8, 300]
-]
-```
-
-Since only **one query** is searched:
+Since only one query is searched,
 
 ```python
 indices[0]
 ```
 
-returns:
+returns
 
 ```
-[45, 18, 201, 8, 300]
+[45, 18, 201, 8, 300, 54, 76, 150, 400, 99]
 ```
 
-These are the row numbers of the most similar resumes.
+Each number corresponds to a row in the DataFrame.
+
+Example:
+
+```python
+df.iloc[45]
+```
+
+retrieves the first matching resume.
 
 ---
 
-## Understanding `distance[0][0]`
+## Understanding `distance`
 
-Suppose:
+Example:
 
 ```python
-distance =
-[
-    [0.00, 0.18, 0.35, 0.62, 0.81]
-]
+distance
 ```
 
-Then:
+```
+[[0.00, 0.18, 0.35, 0.62, 0.81, ...]]
+```
 
-* `distance[0]` → All distances for the first query.
-* `distance[0][0]` → Distance to the closest resume.
-* `distance[0][1]` → Distance to the second closest resume.
-* `distance[0][2]` → Distance to the third closest resume.
+These values are **L2 distances**.
 
-The positions in `distance` correspond directly to the positions in `indices`.
+Smaller distance means greater similarity.
+
+| Distance | Meaning      |
+| -------: | ------------ |
+|     0.00 | Exact match  |
+|     0.20 | Very similar |
+|     0.50 | Similar      |
+|     1.00 | Less similar |
+
+`distance[0][0]` is the distance between the query and the closest resume.
 
 ---
 
-## 7. Collect Job Roles
+# Step 7: Initialize Job Scores
 
 ```python
-recommendations = []
+from collections import defaultdict
 
-for idx in indices[0]:
-
-    recommendations.extend([
-        df.iloc[idx]["job_role_1"],
-        df.iloc[idx]["job_role_2"],
-        df.iloc[idx]["job_role_3"],
-        df.iloc[idx]["job_role_4"],
-        df.iloc[idx]["job_role_5"]
-    ])
-```
-
-### Explanation
-
-Each similar resume contains up to five possible job roles.
-
-Instead of considering only one job role, the system collects all five from every similar resume.
-
-For 10 similar resumes:
-
-```
-10 resumes × 5 job roles = 50 job-role candidates
-```
-
-These candidates are later used to generate recommendations.
-
----
-
-## 8. Create Weighted Job Scores
-
-```python
 job_scores = defaultdict(float)
 ```
 
-Creates a dictionary where every job starts with a score of `0.0`.
+### Purpose
+
+Creates a dictionary where each job role automatically starts with a score of **0.0**.
 
 Example:
 
@@ -263,39 +255,52 @@ Example:
 
 ---
 
-## 9. Score Similar Resumes
+# Step 8: Process Similar Resumes
 
 ```python
 for rank, idx in enumerate(indices[0]):
 ```
 
-Example:
+Suppose
+
+```python
+indices[0]
+```
+
+returns
 
 ```
-indices[0]
-
 [45, 18, 201]
 ```
 
-`enumerate()` returns both the position (`rank`) and the resume index (`idx`).
+Then
 
-| Rank | Resume Index |
-| ---- | ------------ |
-| 0    | 45           |
-| 1    | 18           |
-| 2    | 201          |
+| rank | idx |
+| ---: | --: |
+|    0 |  45 |
+|    1 |  18 |
+|    2 | 201 |
+
+* `rank` identifies the position in the search results.
+* `idx` identifies the corresponding DataFrame row.
 
 ---
 
-## 10. Convert Distance to Similarity
+# Step 9: Convert Distance to Similarity
 
 ```python
 similarity = 1 / (1 + distance[0][rank])
 ```
 
-FAISS returns distances.
+FAISS returns **distance**, but the recommendation system needs **similarity**.
 
-These are converted into similarity scores.
+Formula:
+
+```
+Similarity = 1 / (1 + Distance)
+```
+
+Example:
 
 | Distance | Similarity |
 | -------: | ---------: |
@@ -304,11 +309,11 @@ These are converted into similarity scores.
 |     0.50 |       0.67 |
 |     1.00 |       0.50 |
 
-A smaller distance produces a larger similarity score.
+More similar resumes contribute larger scores.
 
 ---
 
-## 11. Update Job Scores
+# Step 10: Read All Job Roles
 
 ```python
 for col in job_columns:
@@ -319,11 +324,17 @@ for col in job_columns:
         job_scores[job] += similarity
 ```
 
-### Process
+### Purpose
 
-1. Read every job role from the retrieved resume.
-2. Skip missing (`NaN`) values.
-3. Add the resume's similarity score to that job role.
+Each retrieved resume may contain multiple job roles:
+
+* `job_role_1`
+* `job_role_2`
+* `job_role_3`
+* `job_role_4`
+* `job_role_5`
+
+Every valid job role receives the similarity score of its resume.
 
 Example:
 
@@ -333,11 +344,11 @@ ML Engineer += 0.92
 Data Scientist += 0.92
 ```
 
-More similar resumes contribute more to the final recommendation.
+The more similar the resume, the higher its contribution.
 
 ---
 
-## 12. Sort Jobs by Score
+# Step 11: Rank Job Roles
 
 ```python
 top_jobs = sorted(
@@ -347,7 +358,9 @@ top_jobs = sorted(
 )
 ```
 
-Sorts all job roles by their accumulated similarity scores in descending order.
+### Purpose
+
+Sorts all job roles according to their accumulated similarity scores.
 
 Example:
 
@@ -363,15 +376,13 @@ Example:
 
 ---
 
-## 13. Display the Top Recommendations
+# Step 12: Display Final Recommendations
 
 ```python
 print(top_jobs[:5])
 ```
 
-Outputs the five highest-ranked job roles.
-
-Example:
+Example Output:
 
 ```
 [
@@ -387,36 +398,66 @@ These are the final recommended job roles for the uploaded resume.
 
 ---
 
-# Overall Workflow
+# 💡 Why Use Similarity-Based Scoring?
+
+Instead of simply counting how often a job role appears, this approach gives **more weight to resumes that are more similar** to the query.
+
+### Example
+
+| Resume   | Similarity | Job Role         |
+| -------- | ---------: | ---------------- |
+| Resume A |       1.00 | Python Developer |
+| Resume B |       0.82 | Python Developer |
+| Resume C |       0.35 | Python Developer |
+
+Final Score:
 
 ```
-Resume Text
-      │
-      ▼
+Python Developer = 1.00 + 0.82 + 0.35 = 2.17
+```
+
+This produces more meaningful recommendations than treating every retrieved resume equally.
+
+---
+
+# ✅ Technologies Used
+
+* Python
+* Sentence Transformers (`all-MiniLM-L6-v2`)
+* FAISS
+* NumPy
+* Pandas
+* defaultdict (collections)
+
+---
+
+# 📊 Pipeline Summary
+
+```
+Resume
+   │
+   ▼
 Sentence Transformer
-      │
-      ▼
+   │
+   ▼
 384-Dimensional Embedding
-      │
-      ▼
+   │
+   ▼
 FAISS Similarity Search
-      │
-      ▼
-Top-k Similar Resumes
-      │
-      ▼
+   │
+   ▼
+Top 10 Similar Resumes
+   │
+   ▼
 Extract Job Roles
-      │
-      ▼
-Convert Distance → Similarity
-      │
-      ▼
-Weighted Job Scoring
-      │
-      ▼
-Sort by Score
-      │
-      ▼
-Top 5 Recommended Job Roles
+   │
+   ▼
+Similarity-Based Scoring
+   │
+   ▼
+Sort Scores
+   │
+   ▼
+Top 5 Job Recommendations
 ```
 
