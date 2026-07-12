@@ -79,3 +79,280 @@ Most resume analyzers stop after recommending job roles.
 This application goes one step further by automatically searching and displaying **live job opportunities** related to the predicted roles, allowing users to immediately explore and apply for relevant positions without visiting multiple job portals.
 
 This transforms the application from a simple resume analyzer into a practical AI-powered career assistance platform.
+
+
+
+# 🏗️ Chapter 2 – System Design & Architecture
+
+This project follows a modern **Full-Stack AI Architecture** where the frontend, backend, machine learning model, and external APIs work together to provide intelligent resume analysis and real-time job recommendations.
+
+---
+
+# 🏛️ System Architecture
+
+> *(Insert your architecture diagram here.)*
+
+```md
+![System Architecture](docs/system_architecture.png)
+```
+
+---
+
+# 🔄 Application Workflow
+
+The complete workflow of the application is illustrated below.
+
+```text
+User
+ │
+ ▼
+Upload Resume (PDF / DOCX)
+ │
+ ▼
+Frontend (React + Vite)
+ │
+ ▼
+FastAPI Backend
+ │
+ ▼
+Resume Text Extraction
+ │
+ ▼
+Sentence Transformer (MiniLM)
+ │
+ ▼
+Generate Resume Embeddings
+ │
+ ▼
+FAISS Similarity Search
+ │
+ ▼
+Top AI Job Role Recommendations
+ │
+ ▼
+RapidAPI (JSearch API)
+ │
+ ▼
+Real-Time Live Job Recommendations
+ │
+ ▼
+Display Results to User
+```
+
+---
+
+# 🧩 System Components
+
+The application is divided into four major modules.
+
+## 1️⃣ Frontend
+
+The frontend provides a responsive and user-friendly interface where users can upload resumes, view AI-generated job recommendations, and explore real-time job opportunities.
+
+### Responsibilities
+
+- Resume Upload
+- File Validation
+- API Communication
+- Recommendation Display
+- Live Job Display
+- Loading Animations
+- Mobile Responsive UI
+
+**Technology Used**
+
+- React
+- Vite
+- Axios
+- CSS
+
+---
+
+## 2️⃣ Backend
+
+The backend acts as the central controller of the application.
+
+It receives uploaded resumes, extracts text, communicates with the AI recommendation engine, searches live jobs, and returns results to the frontend.
+
+### Responsibilities
+
+- File Upload Handling
+- Resume Processing
+- AI Prediction
+- Live Job Search
+- REST API
+- Error Handling
+
+**Technology Used**
+
+- FastAPI
+- Uvicorn
+- Pydantic
+
+---
+
+## 3️⃣ AI Recommendation Engine
+
+The recommendation engine analyzes resume content using semantic similarity instead of simple keyword matching.
+
+The uploaded resume is converted into embeddings using MiniLM and compared with thousands of resumes stored in the FAISS vector database.
+
+### Responsibilities
+
+- Resume Embedding
+- Semantic Similarity Search
+- Job Role Prediction
+
+**Technology Used**
+
+- Sentence Transformers (MiniLM)
+- FAISS
+- NumPy
+
+---
+
+## 4️⃣ Live Job Recommendation Module
+
+After predicting the most suitable job roles, the system automatically searches current job openings using the JSearch API.
+
+Users receive AI recommendations along with live job opportunities.
+
+### Responsibilities
+
+- Search Current Jobs
+- Format Job Results
+- Return Job Information
+
+**Technology Used**
+
+- RapidAPI
+- JSearch API
+- Requests Library
+
+---
+
+# ⚙️ Technology Stack
+
+| Category | Technology |
+|-----------|------------|
+| Frontend | React + Vite |
+| Backend | FastAPI |
+| Programming Language | Python |
+| Machine Learning | Sentence Transformers |
+| Embedding Model | MiniLM |
+| Similarity Search | FAISS |
+| Live Jobs API | RapidAPI (JSearch) |
+| HTTP Client | Axios |
+| Deployment (Frontend) | Vercel |
+| Deployment (Backend) | Railway |
+| Version Control | Git + GitHub |
+
+---
+
+# 📂 Project Structure
+
+```text
+Resume_Job_Recommendation_Application
+│
+├── backend
+│   ├── app
+│   │   ├── main.py
+│   │   ├── predictor.py
+│   │   ├── recommendation.py
+│   │   ├── ocr.py
+│   │   ├── job_api.py
+│   │   ├── job_formatter.py
+│   │   └── uploads/
+│   │
+│   ├── models/
+│   ├── requirements.txt
+│   └── Procfile
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   ├── services
+│   │   ├── assets
+│   │   └── App.jsx
+│   │
+│   ├── public
+│   ├── package.json
+│   └── vite.config.js
+│
+├── docs
+│   ├── system_architecture.png
+│   ├── workflow.png
+│   └── screenshots
+│
+└── README.md
+```
+
+---
+
+# 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|----------|----------------|--------------------------------|
+| GET | `/` | Health Check API |
+| POST | `/predict` | Analyze Resume & Recommend Job Roles |
+| POST | `/live-jobs` | Fetch Real-Time Job Recommendations |
+
+---
+
+# 🔒 File Validation
+
+The application currently supports:
+
+- ✅ PDF (.pdf)
+- ✅ DOCX (.docx)
+
+Maximum Upload Size:
+
+```text
+10 MB
+```
+
+---
+
+# 📱 Responsive Design
+
+The application is fully responsive and optimized for multiple devices.
+
+Supported Platforms:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile Devices
+
+Additional Mobile Features:
+
+- Smooth Auto Scroll
+- AI Loading Animation
+- Responsive Recommendation Panel
+- Responsive Live Job Cards
+
+---
+
+# 🚀 Deployment Architecture
+
+```text
+React Frontend
+      │
+      ▼
+Vercel
+      │
+ HTTPS API
+      │
+      ▼
+FastAPI Backend
+      │
+      ▼
+Railway
+      │
+      ├──────────────► MiniLM Model
+      │
+      ├──────────────► FAISS Index
+      │
+      └──────────────► RapidAPI (JSearch)
+```
