@@ -1429,3 +1429,301 @@ The backend uses the following major Python libraries.
 The backend acts as the intelligence layer of the application by integrating OCR, AI-based recommendation, and real-time job search into a single REST API service.
 
 Its modular architecture ensures scalability, maintainability, and efficient communication between the frontend, AI recommendation engine, and external job search APIs.
+
+
+# 🎨 Chapter 7 – Frontend Development
+
+The frontend provides a modern, responsive, and user-friendly interface that allows users to upload resumes, receive AI-generated job recommendations, and explore real-time job opportunities.
+
+The frontend is developed using **React** and **Vite**, enabling fast rendering, modular development, and an interactive user experience.
+
+---
+
+# 🏗️ Frontend Architecture
+
+```text
+User
+   │
+   ▼
+React Application
+   │
+   ├────────────► Upload Resume
+   │
+   ├────────────► Validate File
+   │
+   ├────────────► Call FastAPI
+   │
+   ├────────────► Display AI Recommendation
+   │
+   └────────────► Display Live Jobs
+```
+
+---
+
+# 🚀 Why React?
+
+React was selected because it simplifies the development of interactive user interfaces through reusable components and efficient state management.
+
+### Advantages
+
+- Component-Based Architecture
+- Fast Rendering
+- Reusable Components
+- Responsive UI
+- Easy API Integration
+- Efficient State Management
+
+---
+
+# ⚡ Why Vite?
+
+Vite was chosen as the build tool because of its speed and lightweight development environment.
+
+Advantages:
+
+- Extremely Fast Development Server
+- Instant Hot Reload
+- Optimized Production Build
+- Modern JavaScript Support
+
+---
+
+# 📂 Frontend Folder Structure
+
+```text
+frontend
+│
+├── src
+│   ├── assets
+│   ├── components
+│   │
+│   ├── Loader
+│   ├── LiveJobs
+│   ├── RecommendationPanel
+│   ├── UploadResume
+│   │
+│   ├── services
+│   │   ├── api.js
+│   │   └── resumeService.js
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── public
+│
+├── package.json
+│
+└── vite.config.js
+```
+
+---
+
+# 🧩 Frontend Components
+
+## UploadResume Component
+
+This component is responsible for:
+
+- Resume Upload
+- File Validation
+- Calling Backend APIs
+- Displaying Loading Animation
+- Mobile Auto Scroll
+
+---
+
+## RecommendationPanel Component
+
+Displays the AI-generated job role recommendations returned by the backend.
+
+Responsibilities:
+
+- Display Recommended Roles
+- Display Similarity Scores
+- Responsive Layout
+
+---
+
+## LiveJobs Component
+
+Displays current job openings related to the predicted job roles.
+
+Information displayed includes:
+
+- Company Name
+- Job Title
+- Location
+- Employment Type
+- Salary (if available)
+- Apply Link
+
+---
+
+## Loader Component
+
+Provides visual feedback while the application searches for live jobs.
+
+This improves the overall user experience during API requests.
+
+---
+
+# 🔄 Frontend Workflow
+
+```text
+Upload Resume
+        │
+        ▼
+File Validation
+        │
+        ▼
+POST /predict
+        │
+        ▼
+Display AI Recommendation
+        │
+        ▼
+POST /live-jobs
+        │
+        ▼
+Display Live Jobs
+```
+
+---
+
+# 📄 Resume Upload
+
+The frontend supports uploading resumes in:
+
+- PDF
+- DOCX
+
+Validation includes:
+
+- Supported File Types
+- Maximum File Size (10 MB)
+- Empty File Detection
+
+---
+
+# 🔄 API Communication
+
+Axios is used to communicate with the FastAPI backend.
+
+Main API calls include:
+
+```text
+POST /predict
+```
+
+Returns AI recommendations.
+
+```text
+POST /live-jobs
+```
+
+Returns real-time job opportunities.
+
+---
+
+# 🎯 User Experience Improvements
+
+Several features were implemented to improve usability.
+
+## 🤖 AI Loading Animation
+
+Since AI prediction requires several seconds on the deployed server, an animated loading message was introduced.
+
+Example:
+
+```text
+🤖 AI is analyzing your resume.
+🤖 AI is analyzing your resume..
+🤖 AI is analyzing your resume...
+```
+
+After prediction completes, the message changes automatically.
+
+```text
+🔍 Finding live jobs.
+🔍 Finding live jobs..
+🔍 Finding live jobs...
+```
+
+This provides continuous feedback while the application processes requests.
+
+---
+
+## 📱 Mobile Auto Scroll
+
+On mobile devices, recommendation cards appear below the upload section.
+
+To improve usability, the application automatically scrolls to the recommendation section after AI prediction completes.
+
+Desktop users retain the original behavior without automatic scrolling.
+
+---
+
+## ⏳ Live Job Loader
+
+Live job recommendations are fetched after AI prediction.
+
+A dedicated loading component is displayed while jobs are being retrieved.
+
+This allows users to immediately view AI recommendations while live jobs continue loading in the background.
+
+---
+
+# 📱 Responsive Design
+
+The frontend is fully responsive and optimized for multiple screen sizes.
+
+Supported Devices:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile
+
+Responsive features include:
+
+- Flexible Layout
+- Responsive Cards
+- Mobile Auto Scroll
+- Responsive Buttons
+- Mobile-Friendly Typography
+
+---
+
+# 🎨 UI Design Principles
+
+The interface was designed with simplicity and usability in mind.
+
+Key design goals:
+
+- Clean Interface
+- Easy Navigation
+- Minimal Clicks
+- Modern Appearance
+- Fast Interaction
+- Responsive Experience
+
+---
+
+# 📦 Frontend Libraries
+
+| Library | Purpose |
+|----------|----------|
+| React | User Interface |
+| Vite | Build Tool |
+| Axios | HTTP Requests |
+| CSS | Styling |
+
+---
+
+# 💡 Frontend Summary
+
+The frontend serves as the interaction layer between users and the AI backend.
+
+It enables users to upload resumes, receive intelligent job recommendations, explore real-time job opportunities, and interact with the application through a clean, responsive, and user-friendly interface.
+
+Special attention was given to user experience through loading animations, responsive design, and automatic mobile scrolling, making the application intuitive across both desktop and mobile devices.
