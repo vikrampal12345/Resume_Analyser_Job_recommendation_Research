@@ -1727,3 +1727,307 @@ The frontend serves as the interaction layer between users and the AI backend.
 It enables users to upload resumes, receive intelligent job recommendations, explore real-time job opportunities, and interact with the application through a clean, responsive, and user-friendly interface.
 
 Special attention was given to user experience through loading animations, responsive design, and automatic mobile scrolling, making the application intuitive across both desktop and mobile devices.
+
+
+
+# ☁️ Chapter 8 – Deployment & DevOps
+
+After successfully developing and testing the application locally, the next step was deploying it to the cloud so users could access it from anywhere.
+
+The application follows a distributed deployment architecture where the frontend and backend are hosted on separate cloud platforms.
+
+---
+
+# 🏗️ Production Architecture
+
+```text
+                     User
+                       │
+                       ▼
+            React Frontend (Vercel)
+                       │
+               HTTPS API Requests
+                       │
+                       ▼
+          FastAPI Backend (Railway)
+                       │
+      ┌────────────────┼────────────────┐
+      │                │                │
+      ▼                ▼                ▼
+ MiniLM Model      FAISS Index     RapidAPI
+                                   (JSearch)
+```
+
+---
+
+# 🚀 Deployment Strategy
+
+The application was deployed using two different cloud platforms.
+
+| Component | Platform |
+|------------|----------|
+| Frontend | Vercel |
+| Backend | Railway |
+| Source Code | GitHub |
+
+Separating the frontend and backend provides better scalability, easier maintenance, and independent deployments.
+
+---
+
+# 📂 Version Control
+
+Git and GitHub were used throughout the development process.
+
+The repository stores:
+
+- Frontend Source Code
+- Backend Source Code
+- AI Recommendation Engine
+- Documentation
+- Deployment Configuration
+
+GitHub also provides automatic deployment integration with both Railway and Vercel.
+
+---
+
+# ⚛️ Frontend Deployment (Vercel)
+
+The React application was deployed using Vercel.
+
+Deployment Process:
+
+```text
+GitHub
+    │
+    ▼
+Vercel
+    │
+Automatic Build
+    │
+    ▼
+Production Website
+```
+
+### Deployment Steps
+
+1. Connect GitHub Repository
+2. Select Frontend Directory
+3. Install Dependencies
+4. Build React Application
+5. Deploy Automatically
+
+Every push to the main branch automatically triggers a new deployment.
+
+---
+
+# ⚙️ Backend Deployment (Railway)
+
+The FastAPI backend was deployed using Railway.
+
+Deployment Workflow
+
+```text
+GitHub
+     │
+     ▼
+Railway
+     │
+Install Requirements
+     │
+     ▼
+Load AI Model
+     │
+     ▼
+Start FastAPI Server
+```
+
+Railway automatically redeploys the backend whenever changes are pushed to GitHub.
+
+---
+
+# 🔐 Environment Variables
+
+Sensitive information such as API keys should never be stored directly in source code.
+
+Railway Variables were used to securely store:
+
+```text
+RAPIDAPI_KEY
+```
+
+The backend reads the environment variable at runtime using:
+
+```python
+os.getenv("RAPIDAPI_KEY")
+```
+
+This improves security and simplifies deployment.
+
+---
+
+# 🔄 Continuous Deployment (CI/CD)
+
+Every code update follows the same deployment workflow.
+
+```text
+Developer
+      │
+      ▼
+Git Commit
+      │
+      ▼
+GitHub Push
+      │
+      ├────────────► Railway Deploy
+      │
+      └────────────► Vercel Deploy
+```
+
+This automated deployment pipeline ensures that the latest version of the application is always available without manual server updates.
+
+---
+
+# 🔥 Deployment Challenges
+
+During deployment, several real-world challenges were encountered and resolved.
+
+## Challenge 1 – Render Out of Memory
+
+Initially, the backend was deployed on Render.
+
+However, loading the MiniLM model and FAISS index exceeded the free memory limit, causing deployment failures.
+
+### Solution
+
+The backend was migrated to Railway, which successfully handled the application's memory requirements.
+
+---
+
+## Challenge 2 – CORS Configuration
+
+The React frontend and FastAPI backend were hosted on different domains.
+
+Initially, browsers blocked API communication because Cross-Origin Resource Sharing (CORS) was not configured correctly.
+
+### Solution
+
+FastAPI's `CORSMiddleware` was configured to allow requests from the Vercel frontend.
+
+---
+
+## Challenge 3 – Environment Variables
+
+The RapidAPI key worked locally using a `.env` file but initially failed after deployment because the production server did not have the required environment variable.
+
+### Solution
+
+The API key was added through Railway Variables, allowing the backend to access it securely during runtime.
+
+---
+
+## Challenge 4 – Frontend API Connection
+
+During development, the frontend communicated with:
+
+```text
+http://127.0.0.1:8000
+```
+
+After deployment, this prevented the production frontend from reaching the backend.
+
+### Solution
+
+The API base URL was updated to the Railway backend URL.
+
+---
+
+## Challenge 5 – Mobile User Experience
+
+On mobile devices, AI recommendations appeared below the visible screen after analysis completed.
+
+### Solution
+
+Automatic smooth scrolling was implemented to move users directly to the recommendation section after AI prediction.
+
+---
+
+## Challenge 6 – Loading Feedback
+
+The deployed backend required several seconds to analyze resumes and fetch live jobs.
+
+Without visual feedback, users might think the application had stopped responding.
+
+### Solution
+
+Two animated loading stages were introduced:
+
+- 🤖 AI is analyzing your resume...
+- 🔍 Finding live jobs...
+
+This significantly improved the overall user experience.
+
+---
+
+# 📊 Deployment Advantages
+
+The selected deployment architecture provides several benefits.
+
+- Independent frontend and backend deployment
+- Automatic deployment from GitHub
+- Secure environment variable management
+- Scalable cloud infrastructure
+- Easy maintenance
+- Faster development workflow
+
+---
+
+# 🔒 Security Considerations
+
+Several security measures were implemented.
+
+- API keys stored as environment variables
+- Temporary uploaded files automatically deleted
+- File type validation
+- Maximum upload size restriction
+- Backend request validation
+
+---
+
+# 📈 Production Workflow
+
+```text
+User Upload Resume
+        │
+        ▼
+React Frontend (Vercel)
+        │
+HTTPS Request
+        │
+        ▼
+FastAPI Backend (Railway)
+        │
+        ▼
+Resume Processing
+        │
+        ▼
+MiniLM Recommendation
+        │
+        ▼
+RapidAPI Job Search
+        │
+        ▼
+Return Results
+        │
+        ▼
+Display Recommendations
+```
+
+---
+
+# 💡 Deployment Summary
+
+The application was successfully deployed using a modern cloud architecture with **Vercel** for the frontend and **Railway** for the backend.
+
+Throughout deployment, multiple production-level challenges—including memory limitations, CORS configuration, environment variables, API connectivity, and mobile user experience—were identified and resolved.
+
+The final deployment provides a stable, scalable, and user-friendly AI-powered web application capable of analyzing resumes and delivering real-time job recommendations.
