@@ -1059,3 +1059,373 @@ Real-Time Job Search
 Instead of relying on keyword matching or traditional machine learning classification, this project combines **Sentence Transformers** with **FAISS** to build a scalable semantic recommendation engine.
 
 This architecture enables the application to understand the meaning of resumes, identify similar profiles efficiently, and recommend relevant job roles with high speed and accuracy. It also provides a flexible foundation for future enhancements such as ATS scoring, skill-gap analysis, and LLM-powered resume feedback.
+
+
+
+# ⚙️ Chapter 6 – Backend Development
+
+The backend serves as the core processing unit of the application. It manages resume uploads, extracts text from resumes, communicates with the AI recommendation engine, retrieves real-time job opportunities, and sends the processed results back to the frontend.
+
+The backend is developed using **FastAPI**, a modern high-performance Python web framework designed for building scalable RESTful APIs.
+
+---
+
+# 🏗️ Backend Architecture
+
+```text
+React Frontend
+        │
+        ▼
+FastAPI Backend
+        │
+        ├────────────► Resume Upload
+        │
+        ├────────────► OCR Processing
+        │
+        ├────────────► AI Recommendation Engine
+        │
+        ├────────────► Live Job Search
+        │
+        └────────────► JSON Response
+```
+
+---
+
+# 🚀 Why FastAPI?
+
+FastAPI was selected because it provides excellent performance while keeping the backend lightweight and easy to maintain.
+
+### Advantages
+
+- High Performance
+- Automatic API Documentation
+- Built-in Data Validation
+- Easy File Upload Handling
+- REST API Support
+- Asynchronous Processing
+- Modern Python Framework
+
+---
+
+# 📂 Backend Project Structure
+
+```text
+backend
+│
+├── app
+│   ├── main.py
+│   ├── predictor.py
+│   ├── recommendation.py
+│   ├── ocr.py
+│   ├── job_api.py
+│   ├── job_formatter.py
+│   ├── uploads
+│   └── __init__.py
+│
+├── models
+│
+├── requirements.txt
+│
+└── Procfile
+```
+
+---
+
+# 📌 Backend Modules
+
+## main.py
+
+Acts as the main entry point of the FastAPI application.
+
+Responsibilities:
+
+- Initialize FastAPI
+- Configure CORS
+- Register API routes
+- Load AI model
+- Handle requests
+- Return responses
+
+---
+
+## predictor.py
+
+Implements the AI recommendation engine.
+
+Responsibilities:
+
+- Load MiniLM Model
+- Load FAISS Index
+- Generate Embeddings
+- Search Similar Resumes
+- Return Recommended Job Roles
+
+---
+
+## ocr.py
+
+Responsible for extracting text from uploaded resumes.
+
+Supported formats:
+
+- PDF
+- DOCX
+
+Responsibilities:
+
+- Read uploaded file
+- Extract resume text
+- Return clean text
+
+---
+
+## job_api.py
+
+Communicates with the external Job Search API.
+
+Responsibilities:
+
+- Search live jobs
+- Receive API response
+- Parse job information
+- Return formatted jobs
+
+---
+
+## job_formatter.py
+
+Formats predicted job roles before searching live jobs.
+
+Example:
+
+```text
+Machine Learning Engineer
+
+↓
+
+Machine Learning Engineer Jobs
+```
+
+This improves search quality and relevance.
+
+---
+
+# 🌐 REST API Endpoints
+
+## Home API
+
+```http
+GET /
+```
+
+Purpose
+
+Checks whether the backend server is running.
+
+Example Response
+
+```json
+{
+    "message": "Resume Recommendation API Running Successfully"
+}
+```
+
+---
+
+## Resume Prediction API
+
+```http
+POST /predict
+```
+
+Purpose
+
+Uploads a resume and returns AI-generated job role recommendations.
+
+Input
+
+- PDF Resume
+- DOCX Resume
+
+Output
+
+```json
+{
+    "recommendations": [
+        {
+            "job_role": "Backend Developer",
+            "score": 0.94
+        }
+    ]
+}
+```
+
+---
+
+## Live Job Recommendation API
+
+```http
+POST /live-jobs
+```
+
+Purpose
+
+Fetches real-time job opportunities using the predicted job roles.
+
+Input
+
+```json
+{
+    "recommendations":[
+        {
+            "job_role":"Backend Developer"
+        }
+    ]
+}
+```
+
+Output
+
+```json
+{
+    "success": true,
+    "jobs":[
+        {
+            "company":"Google",
+            "job_title":"Backend Developer",
+            "location":"California"
+        }
+    ]
+}
+```
+
+---
+
+# 📄 Resume Processing Workflow
+
+```text
+User Upload Resume
+        │
+        ▼
+Receive File
+        │
+        ▼
+Validate Extension
+        │
+        ▼
+Save Temporary File
+        │
+        ▼
+Extract Resume Text
+        │
+        ▼
+Generate AI Recommendation
+        │
+        ▼
+Return Prediction
+        │
+        ▼
+Delete Temporary File
+```
+
+---
+
+# 🔒 File Validation
+
+The backend validates every uploaded resume before processing.
+
+Supported formats:
+
+- PDF
+- DOCX
+
+Maximum upload size:
+
+```text
+10 MB
+```
+
+If validation fails, the API returns an appropriate error message.
+
+---
+
+# 🛡️ Error Handling
+
+The backend includes exception handling for multiple scenarios.
+
+Examples include:
+
+- Invalid file format
+- Empty resume
+- OCR failure
+- AI prediction failure
+- External API failure
+- Internal server errors
+
+Meaningful HTTP responses are returned to the frontend to improve the user experience.
+
+---
+
+# 🔄 Backend Processing Flow
+
+```text
+Request Received
+        │
+        ▼
+Validate Request
+        │
+        ▼
+Process Resume
+        │
+        ▼
+Predict Job Roles
+        │
+        ▼
+Search Live Jobs
+        │
+        ▼
+Return JSON Response
+```
+
+---
+
+# ⚡ Performance Optimization
+
+Several techniques were used to improve backend performance.
+
+- MiniLM model loaded only once during startup
+- FAISS index loaded into memory
+- Resume database loaded once
+- Temporary files automatically removed
+- FastAPI asynchronous request handling
+- Lightweight REST architecture
+
+These optimizations reduce response time and improve scalability.
+
+---
+
+# 📦 Backend Dependencies
+
+The backend uses the following major Python libraries.
+
+| Library | Purpose |
+|----------|----------|
+| FastAPI | REST API Framework |
+| Uvicorn | ASGI Server |
+| Sentence Transformers | Resume Embeddings |
+| FAISS | Similarity Search |
+| Pandas | Data Processing |
+| NumPy | Numerical Operations |
+| Requests | API Communication |
+| python-dotenv | Environment Variables |
+| Pydantic | Data Validation |
+| shutil | File Handling |
+| uuid | Unique File Names |
+
+---
+
+# 💡 Backend Summary
+
+The backend acts as the intelligence layer of the application by integrating OCR, AI-based recommendation, and real-time job search into a single REST API service.
+
+Its modular architecture ensures scalability, maintainability, and efficient communication between the frontend, AI recommendation engine, and external job search APIs.
