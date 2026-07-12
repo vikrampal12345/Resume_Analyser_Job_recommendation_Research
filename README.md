@@ -356,3 +356,198 @@ Railway
       │
       └──────────────► RapidAPI (JSearch)
 ```
+
+
+
+# 📊 Chapter 3 – Dataset & Data Preparation
+
+The performance of any AI system depends heavily on the quality of its dataset. Instead of using a preprocessed text dataset, this project builds a custom resume dataset by extracting text from resume images, cleaning the extracted data, and preparing it for semantic similarity search.
+
+---
+
+# 📂 Dataset Source
+
+The original dataset consists of thousands of resume images collected from Kaggle.
+
+Each resume was stored as an image rather than plain text, requiring an OCR pipeline to convert the images into machine-readable text.
+
+---
+
+# 🔄 Dataset Preparation Pipeline
+
+The dataset preparation process follows the workflow below.
+
+```text
+Resume Images
+        │
+        ▼
+OCR Text Extraction
+        │
+        ▼
+Extract Resume Text
+        │
+        ▼
+Create CSV Dataset
+        │
+        ▼
+Data Cleaning
+        │
+        ▼
+Duplicate Removal
+        │
+        ▼
+Remove Invalid Resumes
+        │
+        ▼
+Final Clean Dataset
+        │
+        ▼
+Semantic Embedding Generation
+        │
+        ▼
+FAISS Index Creation
+```
+
+---
+
+# 📝 OCR Text Extraction
+
+Since the original dataset contained resume images, Optical Character Recognition (OCR) was used to extract text.
+
+Each image was processed individually, and the extracted text was stored in a structured CSV file.
+
+The extracted dataset contains:
+
+- Resume Text
+- Resume Image Name
+- Job Role Label
+
+---
+
+# 🧹 Data Cleaning
+
+After OCR extraction, several preprocessing steps were performed to improve dataset quality.
+
+Cleaning operations included:
+
+- Removing duplicate resumes
+- Removing empty resumes
+- Removing resumes with very little text
+- Removing corrupted OCR outputs
+- Standardizing text formatting
+- Resetting dataset indexing
+
+These steps significantly improved the quality of semantic embeddings generated later.
+
+---
+
+# 🚫 Duplicate Removal
+
+Many resumes in the original dataset were duplicated.
+
+Duplicate entries were removed using the extracted resume text, ensuring that identical resumes appeared only once.
+
+This reduced unnecessary bias during similarity search.
+
+---
+
+# 📏 Resume Length Filtering
+
+Very small resumes usually contain insufficient information for semantic comparison.
+
+To improve recommendation quality, resumes containing fewer than **30 words** were removed from the dataset.
+
+This ensured that only meaningful resumes were included during embedding generation.
+
+---
+
+# 📈 Final Dataset
+
+After preprocessing, the final dataset contains:
+
+| Property | Value |
+|-----------|-------|
+| Dataset Type | Resume Text Dataset |
+| Original Format | Resume Images |
+| OCR Engine | EasyOCR |
+| Final Dataset Format | CSV |
+| Final Records | ~7000+ Resumes |
+| Supported Language | English |
+
+---
+
+# 🧠 Why Build a Custom Dataset?
+
+Most publicly available resume datasets already contain clean text.
+
+However, real-world resumes are usually uploaded as:
+
+- PDF Files
+- DOCX Files
+- Images
+
+Building a custom OCR pipeline makes the application more practical and closer to real-world deployment.
+
+---
+
+# 🔍 Dataset Features
+
+Each processed resume contains rich textual information such as:
+
+- Technical Skills
+- Programming Languages
+- Education
+- Certifications
+- Work Experience
+- Projects
+- Tools & Technologies
+- Soft Skills
+
+These features are later converted into semantic embeddings for similarity search.
+
+---
+
+# ⚙️ Data Preprocessing Steps
+
+Before generating embeddings, every resume goes through the following preprocessing pipeline:
+
+```text
+Resume Text
+      │
+      ▼
+Lowercase Conversion
+      │
+      ▼
+Whitespace Cleaning
+      │
+      ▼
+Remove Invalid Characters
+      │
+      ▼
+Word Count Validation
+      │
+      ▼
+Final Resume Text
+```
+
+---
+
+# 📌 Why Dataset Quality Matters
+
+Semantic similarity models such as MiniLM rely on high-quality textual data.
+
+Poor-quality resumes can lead to:
+
+- Incorrect embeddings
+- Poor similarity matching
+- Incorrect job recommendations
+
+Therefore, dataset cleaning plays a critical role in improving recommendation accuracy and overall application performance.
+
+---
+
+# ✅ Outcome
+
+The final cleaned dataset provides a strong foundation for semantic similarity search using MiniLM and FAISS.
+
+This dataset enables the system to recommend job roles based on the meaning and context of resume content rather than relying on simple keyword matching.
