@@ -551,3 +551,273 @@ Therefore, dataset cleaning plays a critical role in improving recommendation ac
 The final cleaned dataset provides a strong foundation for semantic similarity search using MiniLM and FAISS.
 
 This dataset enables the system to recommend job roles based on the meaning and context of resume content rather than relying on simple keyword matching.
+
+
+
+# 🧠 Chapter 4 – LLM-Based Resume Annotation & Structured Dataset Generation
+
+One of the biggest challenges in building an intelligent resume recommendation system is the lack of structured resume datasets. Most publicly available resume datasets either contain only raw resume text or predefined labels, making them unsuitable for semantic recommendation systems.
+
+To overcome this limitation, a custom **Large Language Model (LLM) annotation pipeline** was developed to automatically convert raw resume text into structured information.
+
+Instead of manually labeling thousands of resumes, the system uses an LLM to extract important information such as technical skills, education, work experience, certifications, projects, and predicted job roles.
+
+This structured dataset later becomes the foundation of the recommendation engine.
+
+---
+
+# 🎯 Why Use an LLM?
+
+Raw resume text contains unstructured information.
+
+Example:
+
+```text
+John Doe
+Bachelor of Technology
+Python
+Machine Learning
+FastAPI
+SQL
+TensorFlow
+```
+
+Although humans can easily understand this information, machine learning models require structured data.
+
+The LLM automatically transforms raw resume text into a structured JSON format that can be processed efficiently.
+
+---
+
+# 🔄 Annotation Pipeline
+
+```text
+Resume Images
+        │
+        ▼
+EasyOCR
+        │
+        ▼
+Raw Resume Text
+        │
+        ▼
+LLM Annotation
+        │
+        ▼
+Structured JSON
+        │
+        ▼
+CSV Dataset
+        │
+        ▼
+Recommendation Engine
+```
+
+---
+
+# 🤖 LLM Models Used
+
+During development, two different Large Language Models were used.
+
+## 1️⃣ Google Gemini API
+
+Initially, Google's Gemini API was selected because of its strong reasoning capabilities and high-quality structured output.
+
+Advantages:
+
+- High-quality extraction
+- Excellent JSON generation
+- Accurate understanding of resume content
+
+However, while processing thousands of resumes, the project encountered API rate limits, making it unsuitable for large-scale dataset annotation.
+
+---
+
+## 2️⃣ Qwen/Qwen3-4B-2507
+
+To overcome the limitations of Gemini, the annotation pipeline was migrated to the **Qwen/Qwen3-4B-2507** model.
+
+Reasons for switching:
+
+- Better scalability
+- Suitable for batch processing
+- Consistent structured output
+- Reduced dependency on strict API rate limits
+- Efficient processing of large resume datasets
+
+The migration allowed the project to continue generating structured resume data efficiently.
+
+---
+
+# 📄 Resume Parsing Process
+
+Each resume is processed individually.
+
+Workflow:
+
+```text
+Resume Text
+        │
+        ▼
+Prompt Template
+        │
+        ▼
+Qwen LLM
+        │
+        ▼
+Structured JSON
+```
+
+The model reads the entire resume and identifies meaningful information instead of relying on keyword matching.
+
+---
+
+# 📌 Information Extracted
+
+The LLM extracts multiple attributes from every resume.
+
+These include:
+
+- Job Role
+- Technical Skills
+- Programming Languages
+- Education
+- Certifications
+- Work Experience
+- Projects
+- Soft Skills
+- Tools & Technologies
+- Experience Level
+
+This structured information significantly improves the quality of semantic recommendations.
+
+---
+
+# 🧾 JSON Output Structure
+
+Each processed resume is converted into a structured JSON format.
+
+Example:
+
+```json
+{
+  "job_role": "Backend Developer",
+  "skills": [
+    "Python",
+    "FastAPI",
+    "SQL",
+    "Docker"
+  ],
+  "education": "Bachelor of Technology",
+  "experience_level": "Fresher",
+  "certifications": [
+    "AWS Cloud Practitioner"
+  ],
+  "projects": [
+    "Resume Recommendation System"
+  ]
+}
+```
+
+This structured output is later stored inside the processed dataset.
+
+---
+
+# ⚙️ Local Annotation Environment
+
+The annotation pipeline was executed locally to process thousands of resumes efficiently.
+
+## Development Environment
+
+- Python
+- VS Code
+- Virtual Environment (venv)
+- Pandas
+- Requests
+- tqdm
+- dotenv
+
+The project used environment variables to securely manage API credentials during development.
+
+---
+
+# 📁 Dataset Generation Workflow
+
+```text
+Raw Resume CSV
+        │
+        ▼
+Read Resume
+        │
+        ▼
+Send Prompt to LLM
+        │
+        ▼
+Receive JSON Response
+        │
+        ▼
+Validate Output
+        │
+        ▼
+Append to Dataset
+        │
+        ▼
+Save CSV
+```
+
+This workflow continues until all resumes have been processed.
+
+---
+
+# 🛡️ Error Handling
+
+While generating the dataset, several validation mechanisms were implemented.
+
+The pipeline handles:
+
+- Empty resumes
+- Invalid OCR output
+- LLM response errors
+- JSON parsing failures
+- Missing fields
+- API exceptions
+- Retry attempts
+
+These checks ensured reliable dataset generation even when processing thousands of resumes.
+
+---
+
+# 🚀 Benefits of LLM Annotation
+
+Compared to manual labeling, the automated annotation pipeline offers several advantages:
+
+- Automatic resume understanding
+- Consistent structured output
+- Faster dataset creation
+- Reduced manual effort
+- Scalable processing
+- Improved recommendation quality
+
+---
+
+# 📊 Technologies Used
+
+| Component | Technology |
+|------------|------------|
+| OCR | EasyOCR |
+| Initial LLM | Google Gemini API |
+| Final LLM | Qwen/Qwen3-4B-2507 |
+| Language | Python |
+| Data Processing | Pandas |
+| Progress Tracking | tqdm |
+| Environment Variables | python-dotenv |
+| Development Environment | VS Code |
+
+---
+
+# 💡 Why This Approach?
+
+Traditional resume datasets require extensive manual labeling, which is time-consuming and difficult to scale.
+
+By combining OCR with Large Language Models, this project automatically transforms raw resume text into structured information suitable for semantic recommendation systems.
+
+This automated annotation pipeline not only accelerates dataset preparation but also creates richer and more meaningful resume representations for downstream AI tasks such as job recommendation, skill analysis, and semantic similarity search.
